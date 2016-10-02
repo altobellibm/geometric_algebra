@@ -17,6 +17,9 @@ public:
 	friend Multivetor<typename std::common_type<T1, T2>::type> operator+(const Multivetor<T1>& A, const Multivetor<T2>& B);
 
 	template <typename T1, typename T2>
+	friend Multivetor<typename std::common_type<T1, T2>::type> operator-(const Multivetor<T1>& A, const Multivetor<T2>& B);
+
+	template <typename T1, typename T2>
 	friend Multivetor<typename std::common_type<T1, T2>::type> operator*(const T1& l, const Multivetor<T2>& A);
 
 	template <typename T1, typename T2>
@@ -75,6 +78,12 @@ private:
 	 return C;
  }
 
+ template <typename T1, typename T2>
+ friend Multivetor<typename std::common_type<T1, T2>::type> operator-(const Multivetor<T1>& A, const Multivetor<T2>& B){
+	 return A + uminus(B);
+ }
+
+
 template <typename T1, typename T2>
 Multivetor<typename std::common_type<T1, T2>::type> operator*(const T1& l, const Multivetor<T2>& A){
 	
@@ -126,7 +135,7 @@ Multivetor<typename std::common_type<T1, T2>::type> operator^(const Multivetor<T
 				std::cout << b << std::endl;
 				std::cout << c1 << std::endl;
 				std::cout << c2 << std::endl;
-				D.m[itA->first | itB->first] = canonical_order(itA->first, itB->first)*itA->second*itB->second;
+				D.m[(itA->first | itB->first) >> 1] = canonical_order(itA->first, itB->first)*itA->second*itB->second;
 				C = C + D;
 			}
 		}
@@ -150,3 +159,15 @@ int canonical_order(type masc1, type masc2){
 		return -1;
 }
 
+template <typename T>
+Multivetor<T> uminus(const Multivetor<T1>& A){
+
+	Multivetor<T> B;
+
+	auto itA = A.m.begin();
+	While(itA != A.m.end()){
+		C.m[itA->first] = - itA->second;
+	}
+	
+	return B;
+}
