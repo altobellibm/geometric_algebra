@@ -79,6 +79,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Metric.h" />
     <ClInclude Include="Multivector.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
