@@ -5,8 +5,6 @@
 
 int main(int argc, char* argv[])
 {
-
-
 	Orthonormal ortonormal(4);
 
 	Multivector<double> A = (1.0*e(1) ^ 1.0*e(2)) + (1.0*e(1) ^ 1.0*e(3)) + (1.0*e(2) ^ 1.0*e(3));

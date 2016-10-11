@@ -35,12 +35,22 @@ public:
 	friend Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention);
 
 	template<typename T1, typename T2, typename T3>
-	friend Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, Orthogonal<T3>& ort);
+	friend Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+	template<typename T1, typename T2, typename T3>
+	Multivector<typename std::common_type<T1, T2>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
 
 private:
 	std::map<type, T> m;
 
 };
+
+Multivector<int> e(type i){
+	Multivector<int> a;
+	a.m[1 << (i - 1)] = 1;
+	return a;
+}
 
 /*
 std::bitset<8> a();
@@ -88,17 +98,13 @@ T metric_factor(type masc, const Orthogonal<T>& orth){
 	return product_value;
 }
 
-
-
 int take_grade(type masc){
     return Utils::HammingWeight(masc);
 }
 
-
- Multivector<int> e(type i){
-	Multivector<int> a;
-    a.m[1 << (i - 1)] = 1;
-	return a;
+template<typename T> 
+Multivector<T> grade_extraction(Multivector<T> mul, type){
+	return mul;
 }
 
  template <typename T1, typename T2>
@@ -186,7 +192,6 @@ Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector
 				C = C + D;
 			}
 		}
-	
 
 	return C;
 }
@@ -212,7 +217,7 @@ Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, Orthogonal<T3>& ort){
+Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
 	Multivector<typename std::common_type<T1, T2>::type> C;
 
 	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
@@ -226,12 +231,34 @@ Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, Orthogonal<T3>& ort){
-	Multivector<typename std::common_type<T1, T2>::type> C = GP(A,B,ort);
+Multivector<typename std::common_type<T1, T2>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+	Multivector<typename std::common_type<T1, T2>::type> C;
 
+	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
+		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
+			Multivector<typename std::common_type<T1, T2>::type> D;
+			D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
+			C = C + grade_extraction(D, take_grade(itB->first) - take_grade(itA->first));
+		}
 
-	
+	return C;
 }
+
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+	Multivector<typename std::common_type<T1, T2>::type> C;
+
+	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
+	for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
+		Multivector<typename std::common_type<T1, T2>::type> D;
+		D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
+		C = C + grade_extraction(D, take_grade(itA->first) - take_grade(itB->first));
+	}
+
+	return C;
+}
+
+
 
 template <typename T>
 Multivector<T> uminus(const Multivector<T>& A){
