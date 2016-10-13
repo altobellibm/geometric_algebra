@@ -3,6 +3,8 @@
 #include <type_traits>
 #include <bitset>
 #include <iostream>
+#include <assert.h>
+
 
 #include "Utils.h"
 #include "Metric.h"
@@ -15,6 +17,15 @@ public:
 	Multivector(){}
 	
 	friend Multivector<int> e(type i);
+
+    template<typename T1>
+    friend bool is_blade(const Multivector<T1>& A);
+
+    template<typename T1>
+    friend Multivector<T1> grade_extraction(Multivector<T1> M, type);
+
+    template<typename T1>
+    friend std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A);
 
 	template <typename T1, typename T2>
 	friend Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B);
@@ -35,15 +46,31 @@ public:
 	friend Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention);
 
 	template<typename T1, typename T2, typename T3>
-	friend Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
 	template<typename T1, typename T2, typename T3>
-	Multivector<typename std::common_type<T1, T2>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+    template<typename T1>
+    friend Multivector<T1> Reverse(const Multivector<T1>& A);
+
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
 private:
 	std::map<type, T> m;
-
 };
 
 Multivector<int> e(type i){
@@ -52,16 +79,11 @@ Multivector<int> e(type i){
 	return a;
 }
 
-/*
-std::bitset<8> a();
-std::bitset<8> b();
-std::bitset<8> c1();
-std::bitset<8> c2();
-std::cout << a << std::endl;
-std::cout << b << std::endl;
-std::cout << c1 << std::endl;
-std::cout << c2 << std::endl;
-*/
+template<typename T1>
+std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
+    out << "(" << A.m.begin()->second << ")";
+    return out;
+}
 
 int canonical_order(type masc1, type masc2){
 
@@ -102,9 +124,29 @@ int take_grade(type masc){
     return Utils::HammingWeight(masc);
 }
 
-template<typename T> 
-Multivector<T> grade_extraction(Multivector<T> mul, type){
-	return mul;
+
+template<typename T1>
+bool is_blade(const Multivector<T1>& A){
+
+    if (A.m.size() == 0)
+        return false;
+
+    auto it = A.m.begin();
+    int grade = take_grade(it->first);
+
+    for(it++; it != A.m.end(); it++){
+        if(grade != take_grade(it->first))
+            return false;
+    }
+
+    return true;
+}
+
+template<typename T1>
+Multivector<T1> grade_extraction(Multivector<T1> mul, type){
+    Multivector<T1> R;
+
+    return R;
 }
 
  template <typename T1, typename T2>
@@ -217,12 +259,16 @@ Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
-	Multivector<typename std::common_type<T1, T2>::type> C;
+Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+
+    assert((is_blade(A),"Multivector A is not a blade."));
+    assert((is_blade(B),"Multivector B is not a blade."));
+
+    Multivector<typename std::common_type<T1, T2, T3>::type> C;
 
 	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
 		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
-			Multivector<typename std::common_type<T1, T2>::type> D;
+            Multivector<typename std::common_type<T1, T2, T3>::type> D;
 			D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
 			C = C + D;
 		}
@@ -231,44 +277,69 @@ Multivector<typename std::common_type<T1, T2>::type> GP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
-	Multivector<typename std::common_type<T1, T2>::type> C;
+Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+    assert((is_blade(B),"Multivector B is not a blade."));
 
-	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
-		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
-			Multivector<typename std::common_type<T1, T2>::type> D;
-			D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
-			C = C + grade_extraction(D, take_grade(itB->first) - take_grade(itA->first));
-		}
-
-	return C;
+    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
+    return grade_extraction(C, take_grade(B.m.begin()->first) - take_grade(A.m.begin()->first));
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
-	Multivector<typename std::common_type<T1, T2>::type> C;
+Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+    assert((is_blade(B),"Multivector B is not a blade."));
 
-	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
-	for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
-		Multivector<typename std::common_type<T1, T2>::type> D;
-		D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
-		C = C + grade_extraction(D, take_grade(itA->first) - take_grade(itB->first));
-	}
+    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
+    return grade_extraction(C, take_grade(A.m.begin()->first) - take_grade(B.m.begin()->first));
+}
 
-	return C;
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+    assert((is_blade(B),"Multivector B is not a blade."));
+
+    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
+    return grade_extraction(C, 0);
+}
+
+
+template<typename T1>
+Multivector<T1> Reverse(const Multivector<T1>& A){
+    assert((is_blade(A),"Multivector A is not a blade."));
+
+    int r = take_grade(A.m.begin()->first);
+    return ((-1)^( (r*(r-1)) >> 2))*A;
 }
 
 
 
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2>::type> SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+    return SCP(A, Reverse(A), ort);
+}
+
+
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+
+    Multivector<typename std::common_type<T1, T2, T3>::type> S = SCP(A, Reverse(A), ort);
+    Multivector<typename std::common_type<T1, T2, T3>::type> R = e(0)*(1.0/S.m.begin()->second);
+    return GP(SQR_Norm_Reverse(R,ort),Reverse(A), ort);
+}
+
+
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+    assert((is_blade(A),"Multivector A is not a blade."));
+    assert((is_blade(B),"Multivector B is not a blade."));
+
+    return GP(A,INV(B, ort), ort);
+}
+
 template <typename T>
 Multivector<T> uminus(const Multivector<T>& A){
-
-	Multivector<T> B;
-
-	auto itA = A.m.begin();
-    while(itA != A.m.end()){
-        B.m[itA->first] = -itA->second;
-	}
-
-	return B;
+    return -1*A;
 }

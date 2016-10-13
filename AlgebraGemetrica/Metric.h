@@ -22,7 +22,7 @@ public:
      
     }
 
-    T eval(int i, int j) const {
+    T eval(int i, int) const {
         return m[i];
     }
 
