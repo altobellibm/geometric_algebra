@@ -16,7 +16,8 @@ class Multivector{
 public:
 	Multivector(){}
 	
-	friend Multivector<int> e(type i);
+    template<typename T1>
+    friend Multivector<T1> e(type i);
 
     template<typename T1>
     friend bool is_blade(const Multivector<T1>& A);
@@ -73,15 +74,52 @@ private:
 	std::map<type, T> m;
 };
 
-Multivector<int> e(type i){
-	Multivector<int> a;
-	a.m[1 << (i - 1)] = 1;
+template<typename T1 = int>
+Multivector<T1> e(type i){
+
+    Multivector<T1> a;
+    a.m[1 << (i - 1)] = 1;
 	return a;
 }
 
 template<typename T1>
 std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
-    out << "(" << A.m.begin()->second << ")";
+
+    std::string strMultivector;
+    for(auto it = A.m.begin(); it != A.m.end(); it++){
+
+        it->second > 0 ? strMultivector+="+" : strMultivector;
+
+        strMultivector+= std::to_string(it->second) + "*";
+
+        type masc = it->first;
+
+        if(masc == 0)
+            strMultivector+= "e(0)";
+        else
+        {
+            int indice = 1;
+            type mascr = 1;
+            strMultivector+= "( ";
+
+            while (masc != 0){
+
+                if ((masc & mascr) != 0){
+
+                    if(indice != 1 )
+                        strMultivector+= "^";
+
+                    strMultivector+= "e(" + std::to_string(indice) + ")";
+                }
+                indice++;
+                masc = masc >> 1;
+            }
+            strMultivector+= " )";
+        }
+    }
+
+    strMultivector.size() == 0 ? strMultivector : strMultivector.substr(0, strMultivector.size()-1);
+    out <<  strMultivector;
     return out;
 }
 

@@ -8,11 +8,23 @@ int main(int , char** )
 {
 	Orthonormal ortonormal(4);
 
-	Multivector<double> A = (1.0*e(1) ^ 1.0*e(2)) + (1.0*e(1) ^ 1.0*e(3)) + (1.0*e(2) ^ 1.0*e(3));
-	Multivector<double> B = (1.0*e(1) ^ 1.0*e(2)) + (1.0*e(1) ^ 1.0*e(4)) + (1.0*e(2) ^ 1.0*e(4));
-	Multivector<double> C = GP(A,B,ortonormal);
+    // Exercício 1
+        // Item a)
+        std::cout << ((e(1)+e(2))^(e(3)+e(2))) << std::endl;
 
-    std::cout << C;
+        // Item b)
+        std::cout << ((e(2) - e(1)) ^ (e(1) - 2.0*e(3)))  << std::endl;
+
+        // Item c)
+        std::cout << ((4.0*e(1) + e(2) + e(3)) ^ (3.0*e(1))) << std::endl;
+
+        // Item d)
+        std::cout << ((e(2) + e(3)) ^ ((1.0/2.0)*e(1) + e(2) + (3.0/2.0)*e(3))) << std::endl;
+
+        // Item e)
+        std::cout << ((e(1) + e(2)) ^ ((e(2)^e(1)) + (e(3)^e(2)))) << std::endl;
+
+
 
 	return 0;
 	
