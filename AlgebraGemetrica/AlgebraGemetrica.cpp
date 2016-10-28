@@ -74,8 +74,8 @@ int main(int , char** )
 
 		Orthonormal ortonormal(3);
 
-        Multivector<int> a = (2*e(2) + e(3));
-        Multivector<int> b = (e(2) - e(3));
+        Multivector<int> a = (e(1) + e(3));
+        Multivector<int> b = (e(1) + e(2));
 
 		std::cout << std::endl;
 		std::cout << "Questão 4." << std::endl;
@@ -84,19 +84,19 @@ int main(int , char** )
         std::cout << SCP(a, b, ortonormal) << std::endl;
 
         std::cout << "Item b) " << std::endl;
-        std::cout << LConst((e(3)),b, ortonormal);
+        std::cout << LConst((e(3)),b, ortonormal) << std::endl;
 
         std::cout << "Item c) " << std::endl;
-        std::cout << LConst((e(3)),(a^b),ortonormal);
+        std::cout << LConst((e(3)),(a^b),ortonormal) << std::endl;
 
         std::cout << "Item d) " << std::endl;
-        std::cout << LConst((a^b),(e(1)),ortonormal);
+        std::cout << LConst((a^b),(e(1)),ortonormal) << std::endl;
 
         std::cout << "Item e) " << std::endl;
-        std::cout << SCP((2*a + b),(a+b),ortonormal);
+        std::cout << SCP((2*a + b),(a+b),ortonormal) << std::endl;
 
         std::cout << "Item f) " << std::endl;
-        std::cout << RConst((e(1)^e(2)^e(3)),b,ortonormal);
+        std::cout << RConst((e(1)^e(2)^e(3)),b,ortonormal) << std::endl;
 
 
      // Exercício 5

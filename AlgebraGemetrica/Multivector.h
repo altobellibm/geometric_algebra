@@ -23,7 +23,7 @@ public:
     friend bool is_blade(const Multivector<T1>& A);
 
     template<typename T1>
-    friend Multivector<T1> grade_extraction(Multivector<T1> M, type);
+    friend Multivector<T1> grade_extraction(const Multivector<T1>& M, type);
 
     template<typename T1>
     friend std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A);
@@ -71,7 +71,8 @@ public:
     friend Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
 private:
-	std::map<type, T> m;
+	typedef std::map<type, T> MAP;
+	MAP m;
 };
 
 template<typename T1 = int>
@@ -179,8 +180,12 @@ bool is_blade(const Multivector<T1>& A){
 }
 
 template<typename T1>
-Multivector<T1> grade_extraction(Multivector<T1> mul, type _grade){
+Multivector<T1> grade_extraction(const Multivector<T1>& mul, type _grade){
     Multivector<T1> R;
+
+	for (auto it = mul.m.begin(); it != mul.m.end(); it++) 
+		if (take_grade(it->first) == _grade)
+			R.m[it->first] = it->second;
 
     return R;
 }
