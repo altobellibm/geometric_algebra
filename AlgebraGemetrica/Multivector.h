@@ -79,7 +79,11 @@ template<typename T1 = int>
 Multivector<T1> e(type i){
 
     Multivector<T1> a;
-    a.m[1 << (i - 1)] = 1;
+	if (i != 0)
+		a.m[1 << (i - 1)] = 1;
+	else
+		a.m[i] = 1;
+
 	return a;
 }
 
@@ -87,6 +91,7 @@ template<typename T1>
 std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
 
     std::string strMultivector;
+
     for(auto it = A.m.begin(); it != A.m.end(); it++){
 
         it->second > 0 ? strMultivector+="+" : strMultivector;
@@ -118,6 +123,10 @@ std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
     }
 
     strMultivector.size() == 0 ? strMultivector : strMultivector.substr(0, strMultivector.size()-1);
+
+	if (A.m.size() == 0)
+		strMultivector = std::to_string(0);
+
     out <<  strMultivector;
     return out;
 }
