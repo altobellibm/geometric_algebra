@@ -4,11 +4,14 @@
 #include <bitset>
 #include <iostream>
 #include <assert.h>
-
+#include <cmath>
 
 #include "Utils.h"
 #include "Metric.h"
 
+
+//const double ERROR_PRECISION = 0.001;
+//if( std::abs(D.m.begin()->second) < (typename std::common_type<T1, T2, T3>::type) ERROR_PRECISION)
 
 typedef unsigned int type;
 template <typename T>
@@ -69,6 +72,13 @@ public:
 
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+	template<typename T1, typename T2, typename T3>
+	friend Multivector<typename std::common_type<T1, T2, T3>::type> DeltaP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+private:
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type>  GP(const Orthogonal<T3>& ort, type masc_1, T1 cof_1, type masc_2, T2 cof_2);
 
 private:
 	typedef std::map<type, T> MAP;
@@ -241,7 +251,6 @@ Multivector<T1> grade_extraction(const Multivector<T1>& mul, type _grade){
 	 return A + uminus(B);
  }
 
-
 template <typename T1, typename T2>
 Multivector<typename std::common_type<T1, T2>::type> operator*(const T1& l, const Multivector<T2>& A){
 	
@@ -259,14 +268,7 @@ Multivector<typename std::common_type<T1, T2>::type> operator*(const T1& l, cons
 template <typename T1, typename T2>
 Multivector<typename std::common_type<T1, T2>::type> operator*(const Multivector<T1>& A, const T2& l){
 
-	Multivector<typename std::common_type<T1, T2>::type> C;
-
-	auto itA = A.m.begin();
-    while(itA != A.m.end()){
-        C.m[itA->first] = itA->second * l;
-	}
-
-	return C;
+    return l*A;
 }
 
 template <typename T1, typename T2>
@@ -275,15 +277,13 @@ Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector
 	Multivector<typename std::common_type<T1, T2>::type> C;
 
 	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
-		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
-            unsigned int zero = 0;
-			if ((itA->first & itB->first) == zero){
+        for (auto itB = B.m.begin(); itB != B.m.end(); itB++)
+            if ((itA->first & itB->first) == 0){
 
 				Multivector<typename std::common_type<T1, T2>::type> D;
 				D.m[(itA->first | itB->first)] = canonical_order(itA->first, itB->first)*itA->second*itB->second;
 				C = C + D;
 			}
-		}
 
 	return C;
 }
@@ -309,15 +309,23 @@ Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Orthogonal<T3>& ort, type masc_1, T1 cof_1, type masc_2, T2 cof_2){
+
+   Multivector<typename std::common_type<T1, T2, T3>::type> R;
+   R.m[masc_1^masc_2] = canonical_order(masc_1, masc_2)*metric_factor(masc_1 & masc_2, ort)*cof_1*cof_2;
+   return R;
+
+}
+
+template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
 
      Multivector<typename std::common_type<T1, T2, T3>::type> C;
 
 	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
 		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
-            Multivector<typename std::common_type<T1, T2, T3>::type> D;
-			D.m[itA->first^itB->first] = canonical_order(itA->first, itB->first)*metric_factor(itA->first & itB->first, ort)*itA->second*itB->second;
-			C = C + D;
+            const Multivector<typename std::common_type<T1, T2, T3>::type>& D = GP(ort,itA->first,itA->second,itB->first,itB->second);
+            C.m[D.m.begin()->first] += D.m.begin()->second;
 		}
 
 	return C;
@@ -326,22 +334,47 @@ Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
  
-    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
-    return grade_extraction(C, take_grade(B.m.begin()->first) - take_grade(A.m.begin()->first));
+	Multivector<typename std::common_type<T1, T2, T3>::type> C;
+
+	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
+		for (auto itB = B.m.begin(); itB != B.m.end(); itB++) {
+			const Multivector<typename std::common_type<T1, T2, T3>::type>& D = GP(ort, itA->first, itA->second, itB->first, itB->second);
+			if (take_grade(D.m.begin()->first) == (take_grade(itB->first) - take_grade(itA->first)) )
+				C.m[D.m.begin()->first] += D.m.begin()->second;
+
+		}
+
+    return C;
 }
 
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
  
-    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
-    return grade_extraction(C, take_grade(A.m.begin()->first) - take_grade(B.m.begin()->first));
+	Multivector<typename std::common_type<T1, T2, T3>::type> C;
+
+	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
+		for (auto itB = B.m.begin(); itB != B.m.end(); itB++) {
+			const Multivector<typename std::common_type<T1, T2, T3>::type>& D = GP(ort, itA->first, itA->second, itB->first, itB->second);
+			if( take_grade(D.m.begin()->first)  == (take_grade(itA->first) - take_grade(itB->first)) )
+				C.m[D.m.begin()->first] += D.m.begin()->second;
+		}
+
+    return C;
 }
 
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
  
-    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
-    return grade_extraction(C, 0);
+	Multivector<typename std::common_type<T1, T2, T3>::type> C;
+	
+	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
+		for (auto itB = B.m.begin(); itB != B.m.end(); itB++) {
+			const Multivector<typename std::common_type<T1, T2, T3>::type>& D = GP(ort, itA->first, itA->second, itB->first, itB->second);
+			if (take_grade(D.m.begin()->first) ==  0)
+				C.m[D.m.begin()->first] += D.m.begin()->second;
+		}
+
+	return C;
 }
 
 
@@ -351,7 +384,6 @@ Multivector<T1> Reverse(const Multivector<T1>& A){
     int r = take_grade(A.m.begin()->first);
     return ((-1)^( (r*(r-1)) >> 2))*A;
 }
-
 
 
 template<typename T1, typename T2, typename T3>
@@ -364,7 +396,7 @@ template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort){
   
     Multivector<typename std::common_type<T1, T2, T3>::type> S = SCP(A, Reverse(A), ort);
-    Multivector<typename std::common_type<T1, T2, T3>::type> R = e(0)*(1.0/S.m.begin()->second);
+    Multivector<typename std::common_type<T1, T2, T3>::type> R = e(0)*(1.0/(S.m.begin()->second));
     return GP(SQR_Norm_Reverse(R,ort),Reverse(A), ort);
 }
 
@@ -378,4 +410,9 @@ Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T
 template <typename T>
 Multivector<T> uminus(const Multivector<T>& A){
     return -1*A;
+}
+
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> DeltaP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort) {
+
 }
