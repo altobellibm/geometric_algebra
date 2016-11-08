@@ -4,9 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += \
-    ../AlgebraGemetrica/AlgebraGemetrica.cpp
+    ../source/AlgebraGemetrica.cpp
 
 HEADERS += \
-    ../AlgebraGemetrica/Metric.h \
-    ../AlgebraGemetrica/Multivector.h \
-    ../AlgebraGemetrica/Utils.h
+    ../source/Metric.h \
+    ../source/Multivector.h \
+    ../source/Utils.h

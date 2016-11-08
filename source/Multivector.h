@@ -22,14 +22,17 @@ public:
     template<typename T1>
     friend Multivector<T1> e(type i);
 
+
     template<typename T1>
     friend bool is_blade(const Multivector<T1>& A);
 
     template<typename T1>
-    friend Multivector<T1> grade_extraction(const Multivector<T1>& M, type);
+    friend Multivector<T1> grade_blade_extraction(const Multivector<T1>& M, type);
 
     template<typename T1>
     friend std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A);
+
+    //geometric operations
 
 	template <typename T1, typename T2>
 	friend Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B);
@@ -59,22 +62,25 @@ public:
     friend Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
     template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
     template<typename T1>
     friend Multivector<T1> Reverse(const Multivector<T1>& A);
 
-    template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+    template<typename T1, typename T2>
+    friend typename std::common_type<T1, T2>::type SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
-    template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+    template<typename T1, typename T2>
+    friend Multivector<typename std::common_type<T1, T2>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
 	template<typename T1, typename T2, typename T3>
 	friend Multivector<typename std::common_type<T1, T2, T3>::type> DeltaP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+
+    template<typename T1, typename T2>
+    friend void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
 private:
     template<typename T1, typename T2, typename T3>
@@ -198,8 +204,10 @@ bool is_blade(const Multivector<T1>& A){
     return true;
 }
 
+
+
 template<typename T1>
-Multivector<T1> grade_extraction(const Multivector<T1>& mul, type _grade){
+Multivector<T1> grade_blade_extraction(const Multivector<T1>& mul, type _grade){
     Multivector<T1> R;
 
 	for (auto it = mul.m.begin(); it != mul.m.end(); it++) 
@@ -363,18 +371,18 @@ Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivecto
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2, T3>::type> SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
+typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
  
-	Multivector<typename std::common_type<T1, T2, T3>::type> C;
-	
+    typename std::common_type<T1, T2, T3>::type coef(0);
+
 	for (auto itA = A.m.begin(); itA != A.m.end(); itA++)
 		for (auto itB = B.m.begin(); itB != B.m.end(); itB++) {
 			const Multivector<typename std::common_type<T1, T2, T3>::type>& D = GP(ort, itA->first, itA->second, itB->first, itB->second);
 			if (take_grade(D.m.begin()->first) ==  0)
-				C.m[D.m.begin()->first] += D.m.begin()->second;
+                coef += D.m.begin()->second;
 		}
 
-	return C;
+    return coef;
 }
 
 
@@ -386,25 +394,24 @@ Multivector<T1> Reverse(const Multivector<T1>& A){
 }
 
 
-template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2>::type> SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+template<typename T1, typename T2>
+typename std::common_type<T1, T2>::type SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort){
     return SCP(A, Reverse(A), ort);
 }
 
-
-template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2, T3>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+template<typename T1, typename T2>
+Multivector<typename std::common_type<T1, T2>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort){
   
-    Multivector<typename std::common_type<T1, T2, T3>::type> S = SCP(A, Reverse(A), ort);
-    Multivector<typename std::common_type<T1, T2, T3>::type> R = e(0)*(1.0/(S.m.begin()->second));
-    return GP(SQR_Norm_Reverse(R,ort),Reverse(A), ort);
+    return Reverse(A)*(1.0/(SQR_Norm_Reverse(A,ort)));
 }
-
 
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
   
-    return GP(A,INV(B, ort), ort);
+    Multivector< typename std::common_type<T2,T3>::type > B_I;
+    B_I.m[0] = INV(B, ort);
+    return GP(A,B_I, ort);
+
 }
 
 template <typename T>
@@ -414,5 +421,48 @@ Multivector<T> uminus(const Multivector<T>& A){
 
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> DeltaP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort) {
+    Multivector<typename std::common_type<T1, T2, T3>::type> C = GP(A,B,ort);
+
+    unsigned int greater_grade = 0;
+    for(auto it = C.m.begin(); it != C.m.end(); it++){
+        auto grade = take_grade(it->first);
+        if(greater_grade < grade)
+            greater_grade = grade;
+    }
+
+    return grade_blade_extraction(C,greater_grade);
+
+}
+
+template<typename T1, typename T2>
+void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+
+    unsigned int masc;
+    T1 greater_coef(0);
+
+    // get masc from blade how has greater coeffcient.
+    for(auto it = A.m.begin(); it != A.m.end(); it++)
+        if(greater_coef < it->second){
+            greater_coef = it->second;
+            masc = it->first;
+        }
+
+    //T1& escalar, std::vector<Multivector<T1>>& _factor
+    auto& escalar_multivector = SQR_Norm_Reverse(A,ort);
+
+    Multivector<T1> temp = A*(1.0/sqrt(SQR_Norm_Reverse(A,ort)));
+
+
+    type mascr = 1;
+
+    do {
+
+        if ((masc & mascr) != 0)
+            product_value *= orth.eval(indice);
+
+        masc = masc >> 1;
+        indice++;
+
+    } while (masc != 0);
 
 }

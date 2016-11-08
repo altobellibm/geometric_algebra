@@ -22,7 +22,12 @@ void createCliffordTable(const BASE_BLADE& _bladesBase, OPERATION _type, CLIFFOR
       for(BASE_BLADE::size_type j = 0; j < _bladesBase.size(); j++){
           switch (_type) {
           case OPERATION::GP: _table[i][j] = GP(_bladesBase[i], _bladesBase[j],*ortonormal); break;
-          case OPERATION::SCP: _table[i][j] = SCP(_bladesBase[i], _bladesBase[j],*ortonormal); break;
+          case OPERATION::SCP:
+          {
+              Multivector<int> A = (e(0)*SCP(_bladesBase[i], _bladesBase[j],*ortonormal));
+              _table[i][j] = A;
+              break;
+          }
           case OPERATION::LCONST: _table[i][j] = LConst(_bladesBase[i], _bladesBase[j],*ortonormal); break;
           case OPERATION::RCONST: _table[i][j] = RConst(_bladesBase[i], _bladesBase[j],*ortonormal); break;
 		  case OPERATION::OUTP:	_table[i][j] = _bladesBase[i] ^ _bladesBase[j]; break;
@@ -154,7 +159,7 @@ int main(int , char** )
 
     // Exercício 8
 
-      // Não tem como executar esse exercício.
+
 
 
 
