@@ -53,6 +53,8 @@ void printTableBladeBase(const std::string& _title, const BASE_BLADE& _bladesBas
 
 int main(int , char** )
 {
+
+
 	    // Exercício 1
 
 		std::cout << "Question 1." << std::endl;
@@ -102,8 +104,9 @@ int main(int , char** )
         Multivector<int> a = (e(1) + e(3));
         Multivector<int> b = (e(1) + e(2));
 
-		std::cout << std::endl;
+        std::cout << std::endl;
 		std::cout << "Question 4." << std::endl;
+        std::cout << DeltaP((e(1)^e(2)^e(3)),(e(1)^e(2)^e(3)^e(5)), ortonormal);
 
 		std::cout << "Item a) " << std::endl;
         std::cout << SCP(a, b, ortonormal) << std::endl << std::endl;
