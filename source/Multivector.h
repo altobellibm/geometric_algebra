@@ -5,6 +5,7 @@
 #include <iostream>
 #include <assert.h>
 #include <cmath>
+#include <utility>
 
 #include "Utils.h"
 #include "Metric.h"
@@ -13,58 +14,79 @@
 //const double ERROR_PRECISION = 0.001;
 //if( std::abs(D.m.begin()->second) < (typename std::common_type<T1, T2, T3>::type) ERROR_PRECISION)
 
-typedef unsigned int type;
+enum class TYPE { VERSOR, BLADE, NO_STRUCTURE_OF_INTEREST};
+
 template <typename T>
 class Multivector{
 public:
 	Multivector(){}
 	
     template<typename T1>
-    friend Multivector<T1> e(type i);
+    friend Multivector<T1> e(unsigned int i);
+
+
+    friend unsigned int take_grade(unsigned int masc); //(ok)
 
     template<typename T1>
-    friend bool is_blade(const Multivector<T1>& A);
+    friend int take_grade(const Multivector<T1>& A); //ok
+
+    template<typename T1, typename T2 >
+    friend bool GetType(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
 
     template<typename T1>
-    friend Multivector<T1> grade_blade_extraction(const Multivector<T1>& M, type);
+    friend Multivector<T1> grade_blade_extraction(const Multivector<T1>& M, unsigned int grade);
 
     template<typename T1>
     friend std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A);
 
-	template <typename T1, typename T2>
-	friend Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B);
+    friend Multivector<int> PseudoScale(unsigned int _dimension); //ok
+
+    template<typename T1>
+    friend bool IsZero(const Multivector<T1>& A);
+
+    template<typename T1>
+    friend Multivector<T1> Involution(const Multivector<T1>& A);
+
+    template<typename T1>
+    friend Multivector<T1> Reverse(const Multivector<T1>& A);
+
+
+    // blades
 
 	template <typename T1, typename T2>
-	friend Multivector<typename std::common_type<T1, T2>::type> operator-(const Multivector<T1>& A, const Multivector<T2>& B);
+    friend Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B); //ok
 
 	template <typename T1, typename T2>
-	friend Multivector<typename std::common_type<T1, T2>::type> operator*(const T1& l, const Multivector<T2>& A);
+    friend Multivector<typename std::common_type<T1, T2>::type> operator-(const Multivector<T1>& A, const Multivector<T2>& B); //ok
 
 	template <typename T1, typename T2>
-	friend Multivector<typename std::common_type<T1, T2>::type> operator*(const Multivector<T1>& A, const T2& l);
+    friend Multivector<typename std::common_type<T1, T2>::type> operator*(const T1& l, const Multivector<T2>& A); // ok
 
 	template <typename T1, typename T2>
-	friend Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector<T1>& A, const Multivector<T2>& B);
+    friend Multivector<typename std::common_type<T1, T2>::type> operator*(const Multivector<T1>& A, const T2& l); // ok
+
+	template <typename T1, typename T2>
+    friend Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector<T1>& A, const Multivector<T2>& B); // ok
 
     template <typename T1, typename T2>
-    friend Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention);
+    friend bool operator==(const Multivector<typename std::common_type<T1, T2>::type>& A, const Multivector<typename std::common_type<T1, T2>::type>& B);
+
+    template <typename T1, typename T2>
+    friend Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention); //ok
 
     //geometric operations
 
     template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); // ok
 
 	template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
 
     template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
+    friend Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
 
     template<typename T1, typename T2, typename T3>
-    friend typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
-
-    template<typename T1>
-    friend Multivector<T1> Reverse(const Multivector<T1>& A);
+    friend typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
 
     template<typename T1, typename T2>
     friend typename std::common_type<T1, T2>::type SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort);
@@ -88,17 +110,26 @@ public:
     template<typename T1, typename T2>
     friend void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
-private:
     template<typename T1, typename T2, typename T3>
-    friend Multivector<typename std::common_type<T1, T2, T3>::type>  GP(const Orthogonal<T3>& ort, type masc_1, T1 cof_1, type masc_2, T2 cof_2);
+    friend std::pair<typename std::common_type<T1, T2, T3>::type, typename std::common_type<T1, T2, T3>::type > MeetJoinBlade(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& _orto, unsigned int dimension);
+
+    template<typename T1, typename T2>
+    friend Multivector<typename std::common_type<T1, T2>::type> Dual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
+
+    template<typename T1, typename T2>
+    friend Multivector<typename std::common_type<T1, T2>::type> UnDual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
 
 private:
-	typedef std::map<type, T> MAP;
+    template<typename T1, typename T2, typename T3>
+    friend Multivector<typename std::common_type<T1, T2, T3>::type>  GP(const Orthogonal<T3>& ort, unsigned int masc_1, T1 cof_1, unsigned int masc_2, T2 cof_2);
+
+private:
+    typedef std::map<unsigned int, T> MAP;
 	MAP m;
 };
 
 template<typename T1 = int>
-Multivector<T1> e(type i){
+Multivector<T1> e(unsigned int i){
 
     Multivector<T1> a;
 	if (i != 0)
@@ -120,14 +151,14 @@ std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
 
         strMultivector+= std::to_string(it->second) + "*";
 
-        type masc = it->first;
+        unsigned int masc = it->first;
 
         if(masc == 0)
             strMultivector+= "e(0)";
         else
         {
             int indice = 1;
-            type mascr = 1;
+            unsigned int mascr = 1;
             strMultivector+= "( ";
 
             while (masc != 0){
@@ -153,9 +184,9 @@ std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A){
     return out;
 }
 
-int canonical_order(type masc1, type masc2){
+int canonical_order(unsigned int masc1, unsigned int masc2){
 
-    type trocas = 0;
+    unsigned int trocas = 0;
     masc1 = masc1 >> 1;
     while (masc1 != 0){
         trocas += Utils::HammingWeight(masc1 & masc2);
@@ -169,11 +200,11 @@ int canonical_order(type masc1, type masc2){
 }
 
 template<typename T>
-T metric_factor(type masc, const Orthogonal<T>& orth){
+T metric_factor(unsigned int masc, const Orthogonal<T>& orth){
 	
 	int indice = 0;
 	T product_value = 1;
-	type mascr = 1;
+    unsigned int mascr = 1;
 
 	do {
 
@@ -188,38 +219,73 @@ T metric_factor(type masc, const Orthogonal<T>& orth){
 	return product_value;
 }
 
-int take_grade(type masc){
+unsigned int take_grade(unsigned int masc){
     return Utils::HammingWeight(masc);
 }
 
-
 template<typename T1>
-bool is_blade(const Multivector<T1>& A){
+int take_grade(const Multivector<T1>& A){
 
-    if (A.m.size() == 0)
-        return false;
+    if(A.m.empty())
+        return -1;
 
     auto it = A.m.begin();
-    int grade = take_grade(it->first);
+    unsigned int grade = take_grade(it->first);
+    it++;
 
-    for(it++; it != A.m.end(); it++){
-        if(grade != take_grade(it->first))
-            return false;
+    for (; it != A.m.end(); it++)
+        if (take_grade(it->first) != grade)
+            return -1;
+
+    return grade;
+}
+
+template<typename T1, typename T2>
+bool GetType(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension){
+
+    if(GP(Involution(A),INV(A,ort),ort) == GP(INV(A,ort),Involution(A),ort) ){
+
+        for(unsigned int i = 1; i <= dimension; i++){
+            Multivector<typename std::common_type<T1, T2>::type> R = PG(PG(Involution(A),e(1),ort), Reverse(A),ort);
+            if( (R.m.find(0) != R.m.end()))
+                return TYPE::NO_STRUCTURE_OF_INTEREST;
+
+            if(R.m[0] != (typename std::common_type<T1, T2>::type) 1 )
+                return TYPE::NO_STRUCTURE_OF_INTEREST;
+            }
+
+        if(take_grade(A) == -1)
+            return TYPE::VERSOR;
+        else
+            return TYPE::BLADE;
     }
-
-    return true;
+    else
+        return TYPE::NO_STRUCTURE_OF_INTEREST;
 }
 
 template<typename T1>
-Multivector<T1> grade_blade_extraction(const Multivector<T1>& mul, type _grade){
+Multivector<T1> grade_blade_extraction(const Multivector<T1>& mul, unsigned int grade){
     Multivector<T1> R;
 
 	for (auto it = mul.m.begin(); it != mul.m.end(); it++) 
-		if (take_grade(it->first) == _grade)
+        if (take_grade(it->first) == grade)
 			R.m[it->first] = it->second;
 
     return R;
 }
+
+
+Multivector<int> PseudoScale(unsigned int _dimension){
+    Multivector<int> e;
+    e.m[(~(unsigned int)0) >> (32 - _dimension) ] = 1;
+    return e;
+}
+
+template<typename T1>
+bool IsZero(const Multivector<T1>& A){
+    return A.m.size() == 0;
+}
+
 
  template <typename T1, typename T2>
  Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B){
@@ -300,6 +366,20 @@ Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector
 	return C;
 }
 
+template <typename T1, typename T2>
+bool operator==(const Multivector<typename std::common_type<T1, T2>::type>& A, const Multivector<typename std::common_type<T1, T2>::type>& B){
+
+    if ( A.m.size() == B.m.size() ){
+        for (auto itA = A.m.begin(); itA != A.m.end(); itA++){
+            auto itB = B.m.find(itA->first);
+            if ((itB == B.m.end()) && (itA->second != itB->second))
+                return false;
+       }
+        return true;
+    }
+    return false;
+}
+
 
 template <typename T1, typename T2>
 Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention){
@@ -310,7 +390,7 @@ Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A
 		for (auto itB = B.m.begin(); itB != B.m.end(); itB++){
 				Multivector<typename std::common_type<T1, T2>::type> D;
 
-				type mascr = itA->first & itB->first;
+                unsigned int mascr = itA->first & itB->first;
 				if ((take_grade(itA->first) + take_grade(itB->first) - take_grade(mascr)) == dimention){					
 					D.m[mascr] = canonical_order(itA->first^mascr, itB->first^mascr)*itA->second*itB->second;
 				}
@@ -321,7 +401,7 @@ Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A
 }
 
 template<typename T1, typename T2, typename T3>
-Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Orthogonal<T3>& ort, type masc_1, T1 cof_1, type masc_2, T2 cof_2){
+Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Orthogonal<T3>& ort, unsigned int masc_1, T1 cof_1, unsigned int masc_2, T2 cof_2){
 
    Multivector<typename std::common_type<T1, T2, T3>::type> R;
    R.m[masc_1^masc_2] = canonical_order(masc_1, masc_2)*metric_factor(masc_1 & masc_2, ort)*cof_1*cof_2;
@@ -392,11 +472,15 @@ typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const 
 
 template<typename T1>
 Multivector<T1> Reverse(const Multivector<T1>& A){
-  
+
     int r = take_grade(A.m.begin()->first);
-    return ((-1)^( (r*(r-1)) >> 2))*A;
+    return ((-1)^( (r*(r-1)) >> 1))*A;
 }
 
+template<typename T1>
+Multivector<T1> Involution(const Multivector<T1>& A){
+    return ((-1)^(take_grade(A.m.begin()->first)))*A;
+}
 
 template<typename T1, typename T2>
 typename std::common_type<T1, T2>::type SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort){
@@ -450,7 +534,7 @@ Multivector<typename std::common_type<T1, T2, T3>::type> OrtoProjection(const Mu
 }
 
 template<typename T1, typename T2>
-void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort){
+std::pair< typename std::common_type<T1, T2>::type, std::vector< Multivector<typename std::common_type<T1, T2>::type> > > factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort){
 
     std::vector< Multivector<typename std::common_type<T1, T2>::type> > factor_k;
 
@@ -465,16 +549,16 @@ void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort){
         }
 
     //T1& escalar, std::vector<Multivector<T1>>& _factor
-    auto& escalar_multivector = SQR_Norm_Reverse(A,ort);
+    auto& scale = SQR_Norm_Reverse(A,ort);
 
     Multivector<T1> temp = NormalizeBlade;
 
     unsigned int grade = take_grade(masc);
 
-   type mascr = 1;
+   unsigned int mascr = 1;
    unsigned int indice = 0;
 
-   for(type indice = 0; indice < (grade -1); indice++){
+   for(unsigned int indice = 0; indice < (grade -1); indice++){
 
        if ((masc & mascr) != 0){
             Multivector<T1> ej;
@@ -488,5 +572,70 @@ void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort){
     }
 
     factor_k.push_back(NormalizeBlade(temp,ort));
+
+    return std::make_pair(scale,factor_k);
+}
+
+template<typename T1, typename T2, typename T3>
+std::pair<typename std::common_type<T1, T2, T3>::type, typename std::common_type<T1, T2, T3>::type > MeetJoinBlade(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort, unsigned int dimension){
+
+    Multivector<typename std::common_type<T1, T2, T3>::type> Ar = A;
+    Multivector<typename std::common_type<T1, T2, T3>::type> Br = B;
+
+    unsigned int r = take_grade(Ar);
+    unsigned int s = take_grade(Br);
+
+    if (r > s){
+        auto temp = Ar;
+        Ar = Br;
+        Br = temp;
+    }
+
+    auto delta = DeltaP(Ar,Br,ort);
+    unsigned int t = 0.5*(r + s - take_grade(delta));
+
+    auto& pair_scale_factor_k = factorization(Dual(delta,dimension),ort);
+
+    auto INTER = 1*e(0);
+    auto MEET = INV(PseudoScale(dimension),ort);
+
+    const auto factors = pair_scale_factor_k.second;
+    for(const auto factor_j : factors){
+
+        auto PROJ = OrtoProjection(factor_j,Ar,ort);
+        if(!IsZero(PROJ)){
+           INTER = INTER ^ PROJ;
+           //if(take_grade(*(INTER.m.begin())) == t){
+               MEET = RConst(Ar,INV(INTER,ort),ort)^Br;
+               continue;
+           //}
+        }
+
+        auto& REJE = OrtoRejection(factor_j,Ar);
+        if(!IsZero(REJE)){
+            MEET = LConst(REJE,MEET,ort);
+            //if take_grade(*(MEET.m.begin())) == (r + s - t){
+                INTER = UnDual((Dual(Br,ort,dimension)^Dual(Ar,ort,dimension)), ort, dimension );
+                continue;
+           // }
+        }
+    }
+
+    if (r > s){
+        MEET = std::pow(-1,(r-t)*(s-t))*MEET;
+        INTER = std::pow(-1,(r-t)*(s-t))*INTER;
+    }
+
+    return std::make_pair(MEET,INTER);
+}
+
+template<typename T1, typename T2>
+Multivector<typename std::common_type<T1, T2>::type> Dual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension){
+    return LConst(A,INV(PseudoScale(dimension),ort),ort);
+}
+
+template<typename T1, typename T2>
+Multivector<typename std::common_type<T1, T2>::type> UnDual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension){
+    return LConst(A,PseudoScale(dimension),ort);
 }
 

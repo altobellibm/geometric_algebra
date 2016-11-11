@@ -2,7 +2,9 @@
 //
 
 #include <iostream>
+#include <string>
 #include "Multivector.h"
+
 
 typedef std::vector<Multivector<int>> BASE_BLADE;
 typedef std::vector<std::vector<Multivector<int>>> CLIFFORD_TABLE;
@@ -54,7 +56,28 @@ void printTableBladeBase(const std::string& _title, const BASE_BLADE& _bladesBas
 int main(int , char** )
 {
 
+    auto A = (e(1)+e(2))+(e(1)^e(3));
+    std::cout << A << std::endl;
+    std::cout << (take_grade(A) == 2 ? "true":"false") << std::endl;
 
+    A = (e(1)^e(2)) + (e(3));
+    std::cout << A << std::endl;
+    std::cout << (take_grade(A) == -1 ? "true":"false") << std::endl;
+
+    A = (e(1)^e(2)^e(3));
+    std::cout << A << std::endl;
+    std::cout << (PseudoScale(3) == A ? "true":"false") << std::endl;
+
+
+
+
+
+    int i = 0;
+    i++;
+
+
+
+/*
 	    // Exercício 1
 
 		std::cout << "Question 1." << std::endl;
@@ -164,7 +187,7 @@ int main(int , char** )
 
 
 
-
+*/
 
 
 
