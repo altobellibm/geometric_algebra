@@ -18,6 +18,14 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\Metric.h" />
+    <ClInclude Include="..\..\source\Multivector.h" />
+    <ClInclude Include="..\..\source\Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\AlgebraGemetrica.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5B0CB136-5EE7-465D-84B2-934555BA943D}</ProjectGuid>
     <RootNamespace>Teste_lib_algebra_geometrica_vs</RootNamespace>
@@ -111,14 +119,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\AlgebraGemetrica\AlgebraGemetrica.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\AlgebraGemetrica\Metric.h" />
-    <ClInclude Include="..\..\AlgebraGemetrica\Multivector.h" />
-    <ClInclude Include="..\..\AlgebraGemetrica\Utils.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -11,8 +11,9 @@
 #include "Metric.h"
 
 
-//const double ERROR_PRECISION = 0.001;
-//if( std::abs(D.m.begin()->second) < (typename std::common_type<T1, T2, T3>::type) ERROR_PRECISION)
+//Biblioteca de álgebra geométrica 
+//Toda implementação foi baseado no livro : <Esperando a publicação do livro do Leandro et.al para fornecer o link do livro>
+
 
 enum class TYPE { VERSOR, BLADE, NO_STRUCTURE_OF_INTEREST};
 
@@ -23,12 +24,11 @@ public:
 	
     template<typename T1>
     friend Multivector<T1> e(unsigned int i);
-
-
-    friend unsigned int take_grade(unsigned int masc); //(ok)
+	
+    friend unsigned int take_grade(unsigned int masc); 
 
     template<typename T1>
-    friend int take_grade(const Multivector<T1>& A); //ok
+    friend int take_grade(const Multivector<T1>& A); 
 
     template<typename T1, typename T2 >
     friend bool GetType(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
@@ -39,20 +39,22 @@ public:
     template<typename T1>
     friend std::ostream& operator<<(std::ostream& out, const Multivector<T1>& A);
 
-    friend Multivector<int> PseudoScale(unsigned int _dimension); //ok
+    friend Multivector<int> PseudoScale(unsigned int _dimension); 
 
     template<typename T1>
     friend bool IsZero(const Multivector<T1>& A);
-
+	
+	//equação 2.6.60
     template<typename T1>
     friend Multivector<T1> Involution(const Multivector<T1>& A);
 
+	//equação 2.4.16
     template<typename T1>
     friend Multivector<T1> Reverse(const Multivector<T1>& A);
 
-
     // blades
 
+	//algoritmo 5.1 do livro
 	template <typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> operator+(const Multivector<T1>& A, const Multivector<T2>& B); //ok
 
@@ -65,57 +67,77 @@ public:
 	template <typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> operator*(const Multivector<T1>& A, const T2& l); // ok
 
+	//algoritmo 5.1 do livro
 	template <typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector<T1>& A, const Multivector<T2>& B); // ok
 
     template <typename T1, typename T2>
-    friend bool operator==(const Multivector<typename std::common_type<T1, T2>::type>& A, const Multivector<typename std::common_type<T1, T2>::type>& B);
+    friend bool operator==(const Multivector<T1>& A, const Multivector<T2>& B);
 
+	//algoritmo 5.5
     template <typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> RP(const Multivector<T1>& A, const Multivector<T2>& B, int dimention); //ok
 
     //geometric operations
 
+	//algoritmo 5.6
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> GP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); // ok
 
+	//subcaso do algoritmo 5.4
 	template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> LConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
 
+	//subcaso do algoritmo 5.4
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> RConst(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
-
+    
+    //subcaso do algoritmo 5.4
     template<typename T1, typename T2, typename T3>
     friend typename std::common_type<T1, T2, T3>::type SCP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort); //ok
+
 
     template<typename T1, typename T2>
     friend typename std::common_type<T1, T2>::type SQR_Norm_Reverse(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
+	//equação 2.4.21
     template<typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> INV(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+
 
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> IGP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
     //versores
+	//algoritmo 5.8
 	template<typename T1, typename T2, typename T3>
 	friend Multivector<typename std::common_type<T1, T2, T3>::type> DeltaP(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
+	//definido logo abixo do algoritmo 5.9
     template<typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> NormalizeBlade(const Multivector<T1>& A, const Orthogonal<T2>& ort);
 
+	//algoritmo 2.4.20
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type> OrtoProjection(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
-    template<typename T1, typename T2>
-    friend void factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+	//algoritmo 2.4.23
+	template<typename T1, typename T2, typename T3>
+	friend Multivector<typename std::common_type<T1, T2, T3>::type> OrtoRejection(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort);
 
+	//algoritmo 5.9
+	template<typename T1, typename T2>
+	friend std::pair< typename std::common_type<T1, T2>::type, std::vector< Multivector<typename std::common_type<T1, T2>::type> > > factorization(const Multivector<T1>& A, const Orthogonal<T2>& ort);
+
+	//algoritmo 5.10
     template<typename T1, typename T2, typename T3>
     friend std::pair<typename std::common_type<T1, T2, T3>::type, typename std::common_type<T1, T2, T3>::type > MeetJoinBlade(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& _orto, unsigned int dimension);
 
+	//equação 2.7.63
     template<typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> Dual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
 
+	//equação 2.7.66
     template<typename T1, typename T2>
     friend Multivector<typename std::common_type<T1, T2>::type> UnDual(const Multivector<T1>& A, const Orthogonal<T2>& ort, unsigned int dimension);
 
@@ -123,6 +145,9 @@ private:
     template<typename T1, typename T2, typename T3>
     friend Multivector<typename std::common_type<T1, T2, T3>::type>  GP(const Orthogonal<T3>& ort, unsigned int masc_1, T1 cof_1, unsigned int masc_2, T2 cof_2);
 
+	//algoritmo 5.4
+	friend int canonical_order(unsigned int masc1, unsigned int masc2);
+	
 private:
     typedef std::map<unsigned int, T> MAP;
 	MAP m;
@@ -367,12 +392,12 @@ Multivector<typename std::common_type<T1, T2>::type> operator^(const Multivector
 }
 
 template <typename T1, typename T2>
-bool operator==(const Multivector<typename std::common_type<T1, T2>::type>& A, const Multivector<typename std::common_type<T1, T2>::type>& B){
+bool operator==(const Multivector<T1>& A, const Multivector<T2>& B){
 
     if ( A.m.size() == B.m.size() ){
         for (auto itA = A.m.begin(); itA != A.m.end(); itA++){
             auto itB = B.m.find(itA->first);
-            if ((itB == B.m.end()) && (itA->second != itB->second))
+            if ((itB == B.m.end()) && ((typename std::common_type<T1, T2>::type) itA->second != (typename std::common_type<T1, T2>::type) itB->second))
                 return false;
        }
         return true;
@@ -531,6 +556,11 @@ Multivector<typename std::common_type<T1, T2>::type> NormalizeBlade(const Multiv
 template<typename T1, typename T2, typename T3>
 Multivector<typename std::common_type<T1, T2, T3>::type> OrtoProjection(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort){
     return LConst(LConst(A,INV(B,ort),ort),B, ort);
+}
+
+template<typename T1, typename T2, typename T3>
+Multivector<typename std::common_type<T1, T2, T3>::type> OrtoRejection(const Multivector<T1>& A, const Multivector<T2>& B, const Orthogonal<T3>& ort) {
+	return LConst(LConst(A, B, ort), INV(B, ort), ort);
 }
 
 template<typename T1, typename T2>
