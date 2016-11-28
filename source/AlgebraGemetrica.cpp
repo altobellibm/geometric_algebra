@@ -11,6 +11,7 @@ typedef std::vector<std::vector<Multivector<int>>> CLIFFORD_TABLE;
 
 enum class OPERATION { GP, SCP, LCONST, RCONST, OUTP };
 
+/*
 void createCliffordTable(const BASE_BLADE& _bladesBase, OPERATION _type, CLIFFORD_TABLE& _table, const Orthonormal* ortonormal = NULL ){
 
 	if ((OPERATION::GP == _type || OPERATION::SCP == _type || OPERATION::LCONST == _type || OPERATION::RCONST == _type) && (ortonormal == NULL)) {
@@ -52,13 +53,16 @@ void printTableBladeBase(const std::string& _title, const BASE_BLADE& _bladesBas
 		std::cout << std::endl;
 	}
 }
+*/
 
 int main(int , char** )
 {
+		std::cout << (e(20)) << std::endl;
+		std::cout << (e(3)) << std::endl;;
 
 	    // Exercício 1
 
-		std::cout << "Question 1." << std::endl;
+		/*std::cout << "Question 1." << std::endl;
 
         std::cout << "Item a) " << std::endl;
 		std::cout << ((e(1)+e(2))^(e(3)+e(2))) << std::endl << std::endl;
@@ -163,7 +167,7 @@ int main(int , char** )
     // Exercício 8
 
 
-
+	*/
 
 
 
