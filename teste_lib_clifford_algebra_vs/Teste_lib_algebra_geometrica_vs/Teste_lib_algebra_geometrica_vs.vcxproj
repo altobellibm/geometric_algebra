@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\source\Metric.h" />
     <ClInclude Include="..\..\source\Multivector.h" />
-    <ClInclude Include="..\..\source\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\AlgebraGemetrica.cpp" />
